@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.example.springboot.dtos.ProdutosRecordDto;
 import com.example.springboot.models.ProdutosModel;
@@ -48,8 +49,16 @@ public class ProdutosController2 {
 	        return mv;
 	}
 	
+	@PostMapping("/list")
+	public ModelAndView produtosList2(@RequestParam("search") String src) {
+		  ModelAndView mv = new ModelAndView("produtos/listar");
+	        java.util.List<ProdutosModel> produtos = produtosRepository.findProdutosByNomeLike("%"+src+"%");
+	        mv.addObject("produtos", produtos);
+	        return mv;
+	}
+	
 	@PostMapping("/insert")
-	public String produtosInsert(@Valid @ModelAttribute ProdutosRecordDto dto, BindingResult result, @RequestParam("file") MultipartFile imagem) {
+	public String produtosInsert(@Valid @ModelAttribute ProdutosRecordDto dto, BindingResult result, @RequestParam("file") MultipartFile imagem, RedirectAttributes msg) {
 		if(result.hasErrors())
 			return "produtos/inserir";
 		ProdutosModel produto = new ProdutosModel();
@@ -67,7 +76,7 @@ public class ProdutosController2 {
 		}
 		
 		produtosRepository.save(produto);
-		
+		msg.addFlashAttribute("mensagem", "Excluido com sucesso");
 		return "redirect:/produtos/list";
 	}
 	

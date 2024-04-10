@@ -4,6 +4,12 @@
     <title>Homepage</title>
 </head>
 <body>
+<form method="post">
+	Buscar:<input type="text" name="search" />
+	<button type="submit">Enviar</button>
+</form>
+
+<th:block th:include="produtos/msgvalidacao"></th:block>
 <div th:each="produto:${produtos}">
 			<p th:text="${produto.nome}"></p>
 			<a th:href="@{/produtos/editar/{id}(id=${produto.id})}">Editar</a>

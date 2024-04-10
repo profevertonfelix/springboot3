@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html xmlns:th="http://thymeleaf.org">
+<head>
+</head>
+<body>
+<div th:if="${not #strings.isEmpty(mensagem)}">
+ <span th:text="${mensagem}"></span>
+</div>
+
+<div th:if="${not #strings.isEmpty(cadastrook)}">
+ <span th:text="${cadastrook}"></span>
+</div>
+
+<div th:if="${not #strings.isEmpty(cadastroerro)}">
+<span th:text="${cadastroerro}"></span>
+</div>
+</body>
+</html>
