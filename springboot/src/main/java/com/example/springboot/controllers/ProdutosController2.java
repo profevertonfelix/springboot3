@@ -1,5 +1,10 @@
 package com.example.springboot.controllers;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Optional;
 
 import org.hibernate.mapping.List;
@@ -12,6 +17,9 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
 
 import com.example.springboot.dtos.ProdutosRecordDto;
@@ -41,23 +49,36 @@ public class ProdutosController2 {
 	}
 	
 	@PostMapping("/insert")
-	public String produtosInsert(@Valid @ModelAttribute ProdutosRecordDto dto, BindingResult result) {
+	public String produtosInsert(@Valid @ModelAttribute ProdutosRecordDto dto, BindingResult result, @RequestParam("file") MultipartFile imagem) {
 		if(result.hasErrors())
 			return "produtos/inserir";
-		
 		ProdutosModel produto = new ProdutosModel();
 		BeanUtils.copyProperties(dto, produto);
+
+		try {
+			if(!imagem.isEmpty()) {
+				byte[] bytes = imagem.getBytes();
+				Path caminho = Paths.get("./src/main/resources/static/img/"+imagem.getOriginalFilename());
+				Files.write(caminho, bytes);
+				produto.setImagem(imagem.getOriginalFilename());
+			}
+		}catch(IOException e) {
+			System.out.println("erro imagem");
+		}
+		
 		produtosRepository.save(produto);
 		
 		return "redirect:/produtos/list";
 	}
 	
 	@GetMapping("/list/{id}")
+	@ResponseBody
 	public ModelAndView getProduto(@PathVariable(value="id") int id) {
 		ModelAndView mv = new ModelAndView("produtos/listarUm");
 		Optional<ProdutosModel> produto = produtosRepository.findById(id);
 		mv.addObject("nome", produto.get().getNome());
 		mv.addObject("valor", produto.get().getValor());
+		mv.addObject("imagem", produto.get().getImagem());
 		return mv;
 	}
 
@@ -97,6 +118,18 @@ public class ProdutosController2 {
 
 		produtosRepository.save(productModel);
 		return "redirect:/produtos/list";
+	}
+	
+	@GetMapping(value = "/imagens/{img}")
+	@ResponseBody
+	public byte[] getImagens(@PathVariable("img") String imagem) throws IOException {
+		File imagemArquivo = new File("./src/main/resources/static/img/"+imagem);
+		System.out.println(imagem);
+		if(imagem != null || imagem.trim().length()>0) {
+			
+			return Files.readAllBytes(imagemArquivo.toPath());
+		}
+		return null;
 	}
 
 }

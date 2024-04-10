@@ -25,8 +25,14 @@ public class ProdutosModel implements Serializable{
 	@NotNull
 	private BigDecimal valor;
 	
+	private String imagem;
 	
-	
+	public String getImagem() {
+		return imagem;
+	}
+	public void setImagem(String imagem) {
+		this.imagem = imagem;
+	}
 	public long getId() {
 		return id;
 	}
